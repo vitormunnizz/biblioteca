@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS emprestimo (
   id_livro INT NOT NULL,
   data_emprestimo DATE NOT NULL,
   data_devolucao DATE NOT NULL,
+  data_real_devolucao date default null,
   PRIMARY KEY(id_emprestimo),
   FOREIGN KEY(id_usuario) REFERENCES usuario(id_usuario),
   FOREIGN KEY(id_livro) REFERENCES livro(id_livro)
@@ -73,3 +74,53 @@ BEGIN
     WHERE id_livro = NEW.id_livro;
 END $$
 DELIMITER ;
+
+DELIMITER $$
+CREATE TRIGGER devolucao_livro
+AFTER UPDATE ON emprestimo
+FOR EACH ROW
+BEGIN
+    IF NEW.data_real_devolucao IS NOT NULL THEN
+        UPDATE livro
+        SET status = 'DISPONIVEL'
+        WHERE id_livro = NEW.id_livro;
+    END IF;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE TRIGGER verifica_status_livro
+BEFORE INSERT ON emprestimo
+FOR EACH ROW
+BEGIN
+    DECLARE status_livro ENUM('DISPONIVEL', 'EMPRESTADO');
+
+    -- Pega o status do livro
+    SELECT status INTO status_livro
+    FROM livro
+    WHERE id_livro = NEW.id_livro;
+
+    -- Se o livro já estiver emprestado, impede a operação
+    IF status_livro = 'EMPRESTADO' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Este livro já está emprestado!';
+    END IF;
+END $$
+DELIMITER ;
+
+CREATE VIEW livros_disponiveis AS
+SELECT titulo
+FROM livro
+WHERE status = 'DISPONIVEL';
+
+CREATE VIEW livros_emprestados AS
+SELECT 
+    l.titulo,
+    u.nome AS nome_usuario,
+    e.data_emprestimo,
+    e.data_devolucao
+FROM livro as l
+JOIN emprestimo as e ON l.id_livro = e.id_livro
+JOIN usuario as u ON e.id_usuario = u.id_usuario
+WHERE l.status = 'EMPRESTADO';
+
