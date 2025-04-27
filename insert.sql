@@ -33,4 +33,6 @@ INSERT INTO usuario VALUES
 (default, 'Bruno Mendes', 'bruno@gmail.com', '(88) 987654321', 2),
 (default, 'Carla Nunes', 'carla@gmail.com', '(85) 945678901', 3);
 
-INSERT INTO emprestimo VALUES (default, 1, 1, '2025-04-21', '2025-05-21') -- Alice Borges empresta "Harry Potter e a Pedra Filosofal"
+INSERT INTO emprestimo VALUES 
+(default, '1', '1', '2025-04-21', '2025-05-21', '2025-04-21'),
+(default, '2', '2', '2025-04-21', '2025-06-21', default)
