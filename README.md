@@ -41,7 +41,7 @@ Este projeto consiste em um modelo de banco de dados para o gerenciamento de uma
 1. **Clone o repositório:**
 
    ```bash
-   git clone https://github.com/seu-usuario/seu-repositorio.git
+   git clone https://github.com/vitormunnizz/biblioteca.git
    ```
 
 2. **Importe o banco de dados:**
